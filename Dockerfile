@@ -20,7 +20,7 @@ COPY . .
 # 创建上传目录
 RUN mkdir -p /app/static/uploads
 
-EXPOSE 5000
+EXPOSE 8082
 
 # 使用 Waitress 生产级 WSGI 服务器（Windows/Linux 均可用）
-CMD ["python", "-c", "from waitress import serve; from app import app; serve(app, host='0.0.0.0', port=5000)"]
+CMD ["python", "-c", "from waitress import serve; from app import app; serve(app, host='0.0.0.0', port=8082)"]
