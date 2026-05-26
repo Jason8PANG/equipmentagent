@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  maintenance-web:
+    build: .
+    container_name: equipment-maintenance
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      # 千问 API（必填）
+      - QWEN_API_KEY=${QWEN_API_KEY}
+      - QWEN_BASE_URL=${QWEN_BASE_URL:-https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1}
+      - QWEN_MODEL=${QWEN_MODEL:-qwen3.6-plus}
+      # MySQL 数据库（必填）
+      - MYSQL_HOST=${MYSQL_HOST:-10.0.6.86}
+      - MYSQL_PORT=${MYSQL_PORT:-33306}
+      - MYSQL_USER=${MYSQL_USER:-powerbi}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-erp_data}
+      - MYSQL_CHARSET=${MYSQL_CHARSET:-utf8mb4}
+    volumes:
+      - ./static/uploads:/app/static/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

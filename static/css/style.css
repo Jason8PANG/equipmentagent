@@ -1,0 +1,324 @@
+/* ============================================
+   设备维修助手 - 移动端优先样式
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+    padding: 0;
+    margin: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* 头部 */
+header {
+    text-align: center;
+    padding: 24px 16px;
+    background: linear-gradient(135deg, #1890ff, #096dd9);
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* 搜索区域 */
+.search-box {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    font-size: 16px; /* 防止iOS缩放 */
+    background: #fafafa;
+    transition: all 0.3s;
+}
+
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1890ff;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(24, 144, 255, 0.1);
+}
+
+#searchBtn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1890ff, #096dd9);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+}
+
+#searchBtn:active {
+    transform: scale(0.98);
+}
+
+#searchBtn:disabled {
+    background: #d9d9d9;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* 加载中 */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 16px;
+    border: 4px solid #e6f7ff;
+    border-top-color: #1890ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 错误信息 */
+.error {
+    background: #fff2f0;
+    border: 1px solid #ffccc7;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #cf1322;
+    margin-bottom: 16px;
+}
+
+/* 分析摘要 */
+.analysis-box {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.analysis-box h3 {
+    font-size: 16px;
+    color: #1890ff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dashed #f0f0f0;
+    font-size: 14px;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #666;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.stat-value.highlight {
+    color: #fa8c16;
+}
+
+/* 重复警告 */
+.repeat-warning {
+    background: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.repeat-warning .warning-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.repeat-warning .warning-text {
+    font-size: 14px;
+    color: #873800;
+    line-height: 1.5;
+}
+
+/* 结果卡片 */
+.result-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #1890ff;
+    transition: all 0.3s;
+}
+
+.result-card:active {
+    transform: scale(0.99);
+}
+
+.result-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.result-card .equipment-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1890ff;
+}
+
+.result-card .score-badge {
+    background: #e6f7ff;
+    color: #1890ff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.result-card .info-row {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.result-card .info-label {
+    color: #666;
+    margin-right: 6px;
+}
+
+.result-card .info-value {
+    color: #333;
+    font-weight: 500;
+}
+
+.result-card .section {
+    margin-top: 12px;
+    padding: 10px;
+    background: #fafafa;
+    border-radius: 6px;
+}
+
+.result-card .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.result-card .section-content {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.result-card .date-info {
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+    text-align: right;
+}
+
+/* 无结果 */
+.no-results {
+    text-align: center;
+    padding: 40px 16px;
+    color: #999;
+}
+
+.no-results .icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+/* 响应式 - 小屏幕手机 */
+@media (max-width: 375px) {
+    .container {
+        padding: 8px;
+    }
+
+    header {
+        padding: 16px 12px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    .search-box {
+        padding: 12px;
+    }
+
+    .result-card {
+        padding: 12px;
+    }
+}

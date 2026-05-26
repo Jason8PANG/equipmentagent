@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>维修记录录入 - 设备维修助手</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; font-family: -apple-system, "Microsoft YaHei", sans-serif;
+      background: #f0f4fa; color: #1a1a2e;
+    }
+
+    .page {
+      max-width: 780px; margin: 0 auto; padding: 20px 16px;
+    }
+
+    /* Header */
+    .header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+      padding: 13px 18px;
+      background: linear-gradient(135deg, #1677ff 0%, #0050d0 100%);
+      color: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(22,119,255,.3);
+    }
+    .header .logo { font-size: 24px; }
+    .header .title { font-size: 16px; font-weight: 700; }
+    .header .sub   { font-size: 11px; opacity: .8; margin-top: 2px; }
+    .header .nav {
+      margin-left: auto; display: flex; gap: 8px;
+    }
+    .header .nav a {
+      color: #fff; text-decoration: none; font-size: 13px;
+      padding: 5px 12px; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.3); transition: .2s;
+    }
+    .header .nav a:hover { background: rgba(255,255,255,.15); }
+
+    /* Form card */
+    .card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      padding: 24px 28px;
+    }
+    .card-title {
+      font-size: 17px; font-weight: 700; color: #1a1a2e;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-desc { font-size: 13px; color: #888; margin-bottom: 20px; }
+
+    /* Grid */
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    /* Field */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 13px; font-weight: 600; color: #333;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .field label .req { color: #ff4d4f; font-size: 12px; margin-left: 2px; }
+    .field input, .field select, .field textarea {
+      border: 1.5px solid #d0d8f0; border-radius: 8px;
+      padding: 9px 12px; font-size: 14px; font-family: inherit;
+      outline: none; transition: border-color .2s;
+      background: #f8faff; color: #1a1a2e;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: #1677ff; background: #fff;
+    }
+    .field textarea { resize: vertical; min-height: 72px; }
+    .field .hint { font-size: 11px; color: #bbb; }
+
+    /* ── Photo Upload ── */
+    .upload-area {
+      border: 2px dashed #bcd0f7; border-radius: 10px;
+      padding: 22px 18px; text-align: center; cursor: pointer;
+      background: #f7f9ff; transition: all .2s;
+      position: relative;
+    }
+    .upload-area:hover, .upload-area.dragover {
+      border-color: #1677ff; background: #eef4ff;
+    }
+    .upload-area .upload-icon { font-size: 36px; margin-bottom: 6px; }
+    .upload-area .upload-text { font-size: 14px; color: #555; }
+    .upload-area .upload-sub  { font-size: 12px; color: #bbb; margin-top: 2px; }
+    .upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+
+    /* Photo preview strip */
+    .photo-strip {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .photo-item {
+      position: relative; width: 80px; height: 80px;
+      border-radius: 6px; overflow: hidden;
+      border: 1px solid #e0e0e0; background: #f5f5f5;
+    }
+    .photo-item img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .photo-item .del-btn {
+      position: absolute; top: 2px; right: 2px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(0,0,0,.55); color: #fff; font-size: 12px;
+      border: none; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .photo-item .del-btn:hover { background: #ff4d4f; }
+
+    /* Buttons */
+    .btn-row { margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end; }
+    .btn {
+      padding: 10px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer; transition: all .2s; font-family: inherit;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #1677ff, #0050d0);
+      color: #fff; box-shadow: 0 3px 10px rgba(22,119,255,.35);
+    }
+    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(22,119,255,.45); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      background: #fff; color: #555; border: 1.5px solid #d0d8f0;
+    }
+    .btn-secondary:hover { border-color: #1677ff; color: #1677ff; }
+
+    /* Toast */
+    .toast {
+      position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+      padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      z-index: 999; opacity: 0; transition: opacity .3s;
+      box-shadow: 0 4px 16px rgba(0,0,0,.13);
+    }
+    .toast.show    { opacity: 1; }
+    .toast-success { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+    .toast-error   { background: #fff2f0; color: #cf1322; border: 1px solid #ffccc7; }
+
+    /* ══════════ 平板/大屏手机 (≤600px) ══════════ */
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; gap: 14px; }
+      .card { padding: 18px 16px; }
+      .photo-item { width: 64px; height: 64px; }
+      .btn-row { flex-direction: column; }
+      .btn { width: 100%; text-align: center; padding: 12px 20px; }
+
+      /* Header 紧凑 */
+      .header { padding: 10px 12px; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+      .header .logo { font-size: 20px; }
+      .header .title { font-size: 14px; }
+      .header .sub { font-size: 10px; }
+      .header .nav { margin-left: 0; width: 100%; justify-content: center; }
+      .header .nav a { font-size: 12px; padding: 5px 14px; }
+    }
+
+    /* ══════════ 小屏手机 (≤400px) ══════════ */
+    @media (max-width: 400px) {
+      .page { padding: 10px 6px; }
+      .header { padding: 8px 10px; border-radius: 8px; }
+      .header .sub { display: none; }
+      .card { padding: 14px 10px; border-radius: 8px; }
+      .card-title { font-size: 15px; }
+      .card-desc { font-size: 12px; margin-bottom: 14px; }
+
+      /* 表单 */
+      .field label { font-size: 12px; }
+      .field input, .field select { font-size: 14px; padding: 10px 10px; }  /* 手机端更大触摸目标 */
+      .field textarea { font-size: 14px; min-height: 64px; }
+
+      /* 上传区 */
+      .upload-area { padding: 16px 12px; }
+      .upload-area .upload-icon { font-size: 28px; }
+      .upload-area .upload-text { font-size: 13px; }
+      .upload-area .upload-sub { font-size: 11px; }
+      .photo-item { width: 56px; height: 56px; }
+      .photo-item .del-btn { width: 18px; height: 18px; font-size: 10px; }
+
+      /* 按钮 */
+      .btn-row { margin-top: 16px; gap: 8px; }
+      .btn { font-size: 13px; padding: 11px 16px; border-radius: 6px; }
+
+      /* Toast 全宽 */
+      .toast { width: 90%; text-align: center; font-size: 13px; padding: 10px 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">📝</div>
+    <div>
+      <div class="title">维修记录录入</div>
+      <div class="sub">MED 设备维修数据库 · 直接提交</div>
+    </div>
+    <div class="nav">
+      <a href="/">🔍 查询</a>
+      <a href="/add" style="background:rgba(255,255,255,.15)">📝 录入</a>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="card">
+    <div class="card-title">📋 新增维修记录</div>
+    <div class="card-desc">所有<span style="color:#ff4d4f">*</span>字段为必填。提交后直接写入数据库。</div>
+
+    <form id="repairForm" enctype="multipart/form-data">
+      <div class="form-grid">
+
+        <!-- ====== 设备名称 (下拉) ====== -->
+        <div class="field">
+          <label>设备名称 <span class="req">*</span></label>
+          <select id="equipment" required onchange="onEquipmentChange()">
+            <option value="">-- 请选择设备 --</option>
+            {% for eq in equipment_list %}
+            <option value="{{ eq }}">{{ eq }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- ====== 设备编号 (联动下拉) ====== -->
+        <div class="field">
+          <label>设备编号 <span class="req">*</span></label>
+          <select id="equip_code" required>
+            <option value="">-- 请先选择设备名称 --</option>
+          </select>
+        </div>
+
+        <!-- ====== 机器故障类别 (下拉) ====== -->
+        <div class="field">
+          <label>机器故障类别 <span class="req">*</span></label>
+          <select id="fault_category" required onchange="onFaultCategoryChange()">
+            <option value="">-- 请选择 --</option>
+            {% for cat in fault_categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- ====== 故障类别明细 (联动下拉) ====== -->
+        <div class="field">
+          <label>故障类别明细 <span class="req">*</span></label>
+          <select id="fault_detail" required>
+            <option value="">-- 请先选择故障类别 --</option>
+          </select>
+        </div>
+
+        <!-- 故障现象描述 -->
+        <div class="field full">
+          <label>故障现象描述 <span class="req">*</span></label>
+          <textarea id="phenomenon" placeholder="详细描述故障表现，如：上料后端开治具频繁报警，机器无法正常运行…" required></textarea>
+        </div>
+
+        <!-- 可能导致的产品不良 -->
+        <div class="field full">
+          <label>故障可能导致的产品不良描述</label>
+          <textarea id="product_defect" placeholder="选填。如：红黑线沾锡不良"></textarea>
+        </div>
+
+        <!-- 故障根本原因分析 -->
+        <div class="field full">
+          <label>故障根本原因分析 <span class="req">*</span></label>
+          <textarea id="root_cause" placeholder="分析故障的根本原因，如：PLC点位故障" required></textarea>
+        </div>
+
+        <!-- 维修采取措施 -->
+        <div class="field full">
+          <label>维修采取措施 <span class="req">*</span></label>
+          <textarea id="action" placeholder="描述采取的维修措施，如：更换PLC；重新调整位置" required></textarea>
+        </div>
+
+        <!-- 预防改进措施 -->
+        <div class="field full">
+          <label>预防改进措施</label>
+          <textarea id="prevention" placeholder="选填。预防性建议"></textarea>
+        </div>
+
+        <!-- 维修时长 -->
+        <div class="field">
+          <label>维修时长（分钟） <span class="req">*</span></label>
+          <input type="number" id="duration" placeholder="例：30" min="1" required>
+        </div>
+
+        <!-- ====== 维修技术员 (下拉) ====== -->
+        <div class="field">
+          <label>维修技术员 <span class="req">*</span></label>
+          <select id="technician" required>
+            <option value="">-- 请选择 --</option>
+            {% for t in technician_list %}
+            <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- ====== 附件 (照片上传) ====== -->
+        <div class="field full">
+          <label>📷 附件（现场照片）</label>
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">点击或拖拽照片到此处</div>
+            <div class="upload-sub">不限制张数和大小，支持 JPG/PNG/GIF 格式</div>
+            <input type="file" id="photosInput" accept="image/*" multiple
+                   onchange="onPhotosSelected(event)">
+          </div>
+          <div class="photo-strip" id="photoStrip"></div>
+        </div>
+
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn btn-secondary" onclick="resetForm()">🔄 重置</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">✅ 提交记录</button>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════ JS ═══════════════════════════════════════════════ -->
+<script>
+// ── Toast ──
+const toastEl = document.getElementById("toast");
+let toastTimer = null;
+function showToast(msg, ok) {
+  clearTimeout(toastTimer);
+  toastEl.textContent = msg;
+  toastEl.className = "toast show " + (ok ? "toast-success" : "toast-error");
+  toastTimer = setTimeout(function() { toastEl.className = "toast"; }, 4000);
+}
+
+// ── 照片管理 ──
+let selectedPhotos = []; // DataTransfer / FileList
+
+const uploadArea = document.getElementById("uploadArea");
+const photosInput = document.getElementById("photosInput");
+const photoStrip = document.getElementById("photoStrip");
+
+// 拖拽支持
+uploadArea.addEventListener("dragover", function(e) {
+  e.preventDefault();
+  uploadArea.classList.add("dragover");
+});
+uploadArea.addEventListener("dragleave", function() {
+  uploadArea.classList.remove("dragover");
+});
+uploadArea.addEventListener("drop", function(e) {
+  e.preventDefault();
+  uploadArea.classList.remove("dragover");
+  if (e.dataTransfer.files.length > 0) {
+    addPhotos(e.dataTransfer.files);
+  }
+});
+
+function onPhotosSelected(e) {
+  addPhotos(e.target.files);
+}
+
+function addPhotos(fileList) {
+  Array.from(fileList).forEach(function(f) {
+    if (!f.type.startsWith("image/")) return;
+    selectedPhotos.push(f);
+  });
+  renderPhotoStrip();
+}
+
+function removePhoto(index) {
+  selectedPhotos.splice(index, 1);
+  renderPhotoStrip();
+}
+
+function renderPhotoStrip() {
+  photoStrip.innerHTML = "";
+  selectedPhotos.forEach(function(file, i) {
+    var url = URL.createObjectURL(file);
+    var div = document.createElement("div");
+    div.className = "photo-item";
+    div.innerHTML =
+      '<img src="' + url + '" alt="photo">' +
+      '<button class="del-btn" onclick="removePhoto(' + i + ')" title="移除">x</button>';
+    photoStrip.appendChild(div);
+  });
+}
+
+// ── 联动下拉 ──
+async function onEquipmentChange() {
+  var equip = document.getElementById("equipment").value;
+  var codeSel = document.getElementById("equip_code");
+  codeSel.innerHTML = '<option value="">-- 加载中… --</option>';
+
+  if (!equip) {
+    codeSel.innerHTML = '<option value="">-- 请先选择设备名称 --</option>';
+    return;
+  }
+
+  try {
+    var res = await fetch("/api/equip-codes?equipment=" + encodeURIComponent(equip));
+    var data = await res.json();
+    if (data.success && data.data.length > 0) {
+      var html = '<option value="">-- 请选择设备编号 --</option>';
+      data.data.forEach(function(code) {
+        html += '<option value="' + escapeHtml(code) + '">' + escapeHtml(code) + '</option>';
+      });
+      codeSel.innerHTML = html;
+    } else {
+      codeSel.innerHTML = '<option value="">-- 无对应编号 --</option>';
+    }
+  } catch (err) {
+    codeSel.innerHTML = '<option value="">-- 加载失败 --</option>';
+  }
+}
+
+async function onFaultCategoryChange() {
+  var cat = document.getElementById("fault_category").value;
+  var detailSel = document.getElementById("fault_detail");
+  detailSel.innerHTML = '<option value="">-- 加载中… --</option>';
+
+  if (!cat) {
+    detailSel.innerHTML = '<option value="">-- 请先选择故障类别 --</option>';
+    return;
+  }
+
+  try {
+    var res = await fetch("/api/fault-details?category=" + encodeURIComponent(cat));
+    var data = await res.json();
+    if (data.success && data.data.length > 0) {
+      var html = '<option value="">-- 请选择故障明细 --</option>';
+      data.data.forEach(function(d) {
+        html += '<option value="' + escapeHtml(d) + '">' + escapeHtml(d) + '</option>';
+      });
+      detailSel.innerHTML = html;
+    } else {
+      detailSel.innerHTML = '<option value="">-- 无对应明细 --</option>';
+    }
+  } catch (err) {
+    detailSel.innerHTML = '<option value="">-- 加载失败 --</option>';
+  }
+}
+
+function escapeHtml(str) {
+  var div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ── 提交 ──
+document.getElementById("repairForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  var submitBtn = document.getElementById("submitBtn");
+
+  // 收集数据
+  var fields = ["equipment","equip_code","fault_category","fault_detail",
+                "phenomenon","product_defect","root_cause","action","prevention",
+                "duration","technician"];
+  var payload = {};
+  var required = ["equipment","equip_code","fault_category","fault_detail",
+                  "phenomenon","root_cause","action","duration","technician"];
+
+  for (var i = 0; i < fields.length; i++) {
+    var el = document.getElementById(fields[i]);
+    payload[fields[i]] = el ? el.value.trim() : "";
+  }
+
+  // 前端校验必填
+  for (var j = 0; j < required.length; j++) {
+    if (!payload[required[j]]) {
+      showToast("请填写所有必填字段（" + required[j] + "）", false);
+      var fel = document.getElementById(required[j]);
+      if (fel) fel.focus();
+      return;
+    }
+  }
+  if (isNaN(payload.duration) || parseInt(payload.duration) <= 0) {
+    showToast("维修时长必须为正整数", false);
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "提交中…";
+
+  try {
+    var formData = new FormData();
+    for (var key in payload) {
+      if (payload.hasOwnProperty(key)) {
+        formData.append(key, payload[key]);
+      }
+    }
+    // 添加照片
+    selectedPhotos.forEach(function(file) {
+      formData.append("photos", file);
+    });
+
+    var res = await fetch("/api/submit", {
+      method: "POST",
+      body: formData  // 不设 Content-Type，浏览器自动处理 multipart
+    });
+    var data = await res.json();
+
+    if (data.success) {
+      var msg = "维修记录 #" + data.record_id + " 已成功提交！";
+      if (data.attachment_count > 0) {
+        msg += " 共上传 " + data.attachment_count + " 张照片。";
+      }
+      showToast(msg, true);
+      resetForm();
+    } else {
+      showToast((data.error || "提交失败"), false);
+    }
+  } catch (err) {
+    showToast("网络错误：" + err.message, false);
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = "提交记录";
+});
+
+// ── 重置 ──
+function resetForm() {
+  document.getElementById("repairForm").reset();
+  selectedPhotos = [];
+  photoStrip.innerHTML = "";
+  document.getElementById("equip_code").innerHTML = '<option value="">-- 请先选择设备名称 --</option>';
+  document.getElementById("fault_detail").innerHTML = '<option value="">-- 请先选择故障类别 --</option>';
+}
+</script>
+</body>
+</html>
