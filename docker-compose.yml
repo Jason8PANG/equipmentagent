@@ -3,10 +3,13 @@ version: "3.8"
 services:
   maintenance-web:
     build: .
-    container_name: equipment-maintenance
+    container_name: equipmentagentapp
+    hostname: equipmentagentapp
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "8082:8082"
+    networks:
+      - public-net
     environment:
       # 千问 API（必填）
       - QWEN_API_KEY=${QWEN_API_KEY}
@@ -22,7 +25,11 @@ services:
     volumes:
       - ./static/uploads:/app/static/uploads
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8082/"]
       interval: 30s
       timeout: 10s
       retries: 3
+
+networks:
+  public-net:
+    external: true
